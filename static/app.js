@@ -115,9 +115,14 @@ function openModal(item) {
     extraEl.innerHTML = "";
     if (item.extra && Object.keys(item.extra).length > 0) {
         Object.entries(item.extra).forEach(([key, val]) => {
+            let display = escHtml(val);
+            if (key === "Price" && val) {
+                const num = parseFloat(val);
+                if (!isNaN(num)) display = "$" + num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
             const row = document.createElement("div");
             row.className = "extra-row";
-            row.innerHTML = `<span class="extra-label">${escHtml(key)}</span><span>${escHtml(val)}</span>`;
+            row.innerHTML = `<span class="extra-label">${escHtml(key)}</span><span>${display}</span>`;
             extraEl.appendChild(row);
         });
     }
