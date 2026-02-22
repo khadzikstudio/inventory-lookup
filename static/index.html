@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Lookup</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Inventory Lookup</h1>
+            <div class="search-bar">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Search inventory... (e.g. &quot;blue furniture&quot;)" autocomplete="off">
+                <button id="clearBtn" class="clear-btn" title="Clear search">&times;</button>
+            </div>
+            <div class="filters">
+                <select id="categoryFilter">
+                    <option value="">All Categories</option>
+                </select>
+                <span id="resultCount" class="result-count"></span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Searching...</p>
+        </div>
+        <div id="results" class="card-grid"></div>
+        <div id="emptyState" class="empty-state" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="64" height="64">
+                <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <p>No items found</p>
+            <span>Try a different search term</span>
+        </div>
+    </main>
+
+    <div id="modal" class="modal" style="display:none;">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <div class="modal-body">
+                <div class="modal-image">
+                    <img id="modalImg" src="" alt="">
+                </div>
+                <div class="modal-details">
+                    <h2 id="modalName"></h2>
+                    <span id="modalCategory" class="modal-cat"></span>
+                    <div id="modalExtra" class="modal-extra"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

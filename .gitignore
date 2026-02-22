@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.env
+images_clean/
+*.zip
+_inspect_zip.py
+_test_match.py
+_test_search.py
+venv/
+.venv/

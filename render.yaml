@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: inventory-lookup
+    runtime: python
+    buildCommand: pip install -r requirements-azure.txt
+    startCommand: gunicorn --bind=0.0.0.0:$PORT --timeout 120 serve:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.0"

@@ -1,0 +1,36 @@
+# InventoryLookup Configuration
+
+# Path to your Excel spreadsheet (.xlsx)
+spreadsheet: "C:\\Users\\khadzik\\Downloads\\ProductList (2).xlsx"
+
+# Path to the folder containing product images
+image_folder: "C:\\Users\\khadzik\\Downloads\\InventoryLookup\\images_clean"
+
+# Column mappings for your spreadsheet
+columns:
+  name: "Product Name"
+  image: "Product Id"
+  # Extra columns to index for search and display
+  extra:
+    - "Manufacturer"
+    - "Part #"
+    - "Price"
+    - "Owned"
+    - "Rented"
+    - "Is Package"
+
+# Server settings
+server:
+  host: "0.0.0.0"
+  port: 5000
+
+# Thumbnail settings
+thumbnails:
+  width: 300
+  quality: 85
+
+# Search settings
+search:
+  results_per_page: 60
+  text_weight: 0.4
+  visual_weight: 0.6
