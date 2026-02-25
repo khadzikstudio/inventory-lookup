@@ -44,6 +44,24 @@ h1 {
     letter-spacing: -0.02em;
 }
 
+.title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 0.92rem;
+}
+
+.nav-link:hover {
+    color: var(--primary-hover);
+}
+
 .search-bar {
     position: relative;
     display: flex;

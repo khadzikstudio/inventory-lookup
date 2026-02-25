@@ -18,6 +18,11 @@ def index():
     return send_from_directory(cfg["_static_dir"], "index.html")
 
 
+@app.route("/budget")
+def budget_builder():
+    return send_from_directory(cfg["_static_dir"], "budget.html")
+
+
 @app.route("/api/search")
 def api_search():
     query = request.args.get("q", "").strip()

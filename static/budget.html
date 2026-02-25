@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Builder - Inventory Lookup</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/budget.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="title-row">
+                <h1>Budget Builder</h1>
+                <a class="nav-link" href="/">Back to Search</a>
+            </div>
+            <p class="subhead">Drag inventory into the build list to track costs live.</p>
+            <div class="budget-controls">
+                <label>
+                    Days
+                    <input id="daysInput" type="number" min="1" value="1">
+                </label>
+                <label>
+                    Budget Target ($)
+                    <input id="budgetInput" type="number" min="0" step="0.01" placeholder="Optional">
+                </label>
+            </div>
+            <div class="search-bar">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="searchInput" placeholder='Search inventory... (e.g. "holiday lounge")' autocomplete="off">
+                <button id="clearBtn" class="clear-btn" title="Clear search">&times;</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="budget-layout">
+        <section class="left-pane">
+            <h2>Inventory Results</h2>
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Searching...</p>
+            </div>
+            <div id="results" class="card-grid"></div>
+            <div id="emptyState" class="empty-state" style="display:none;">
+                <p>No items found</p>
+                <span>Try a different search term</span>
+            </div>
+        </section>
+
+        <aside class="right-pane">
+            <div class="summary-card">
+                <h2>Build Summary</h2>
+                <div class="summary-row">
+                    <span>Items Selected</span>
+                    <strong id="selectedCount">0</strong>
+                </div>
+                <div class="summary-row">
+                    <span>Subtotal / Day</span>
+                    <strong id="subtotalDay">$0.00</strong>
+                </div>
+                <div class="summary-row total">
+                    <span>Total Cost</span>
+                    <strong id="grandTotal">$0.00</strong>
+                </div>
+                <div id="budgetStatus" class="budget-status">No budget target set.</div>
+                <button id="exportBtn" class="primary-btn" type="button">Export CSV</button>
+            </div>
+
+            <div id="dropZone" class="drop-zone">
+                Drop items here from the left to add to build
+            </div>
+
+            <div id="selectedList" class="selected-list"></div>
+        </aside>
+    </main>
+
+    <script src="/static/budget.js"></script>
+</body>
+</html>
