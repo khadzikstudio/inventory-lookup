@@ -12,6 +12,10 @@ const grandTotalEl = document.getElementById("grandTotal");
 const budgetStatusEl = document.getElementById("budgetStatus");
 const dropZoneEl = document.getElementById("dropZone");
 const exportBtn = document.getElementById("exportBtn");
+const modal = document.getElementById("modal");
+const modalImg = document.getElementById("modalImg");
+const modalName = document.getElementById("modalName");
+const modalExtra = document.getElementById("modalExtra");
 
 const selectedItems = new Map();
 const searchResultsById = new Map();
@@ -28,6 +32,10 @@ function money(value) {
 
 function getPrice(item) {
     return parseMoney(item?.extra?.Price || 0);
+}
+
+function getItemNumber(item) {
+    return item?.extra?.["Product Id"] || "";
 }
 
 function escHtml(str) {
@@ -83,6 +91,7 @@ function renderResults(items) {
             img.loading = "lazy";
             img.src = `/thumbnails/${item.thumb_file}`;
             img.alt = item.name;
+            img.addEventListener("dblclick", () => openModal(item));
             img.onerror = function () {
                 this.outerHTML = `<div class="card-img no-img">No image</div>`;
             };
@@ -148,21 +157,21 @@ function renderSelected() {
         row.className = "selected-item";
 
         const imgHtml = entry.item.thumb_file
-            ? `<img src="/thumbnails/${escHtml(entry.item.thumb_file)}" alt="${escHtml(entry.item.name)}" draggable="true">`
+            ? `<img src="/thumbnails/${escHtml(entry.item.thumb_file)}" alt="${escHtml(entry.item.name)}" draggable="true" data-preview-id="${id}" title="Double-click for details">`
             : `<div class="card-img no-img" style="width:56px;height:56px;">No image</div>`;
 
         row.innerHTML = `
             ${imgHtml}
             <div class="item-meta">
                 <div class="item-name">${escHtml(entry.item.name)}</div>
-                <div class="item-price">${money(unit)} / day</div>
+                <div class="item-price">Item #${escHtml(getItemNumber(entry.item) || "-")} - ${money(unit)} / day</div>
             </div>
             <div>
                 <div class="item-controls">
                     <input type="number" min="1" value="${entry.qty}" data-qty-id="${id}">
                     <button class="remove-btn" data-remove-id="${id}">Remove</button>
                 </div>
-                <div class="item-total">${money(lineTotal)}</div>
+                <div class="item-total">Subtotal: ${money(lineTotal)}</div>
             </div>
         `;
 
@@ -204,20 +213,37 @@ function exportCsv() {
     }
 
     const lines = [
-        ["Item", "Qty", "Price Per Day", "Days", "Line Total"],
+        ["Item Number", "Item", "Qty", "Price Per Day", "Line Subtotal / Day", "Days", "Line Total"],
     ];
+    let subtotalPerDay = 0;
+    let totalCost = 0;
+    let totalItemQty = 0;
 
     selectedItems.forEach(entry => {
         const unit = getPrice(entry.item);
-        const total = unit * entry.qty * days;
+        const lineSubtotal = unit * entry.qty;
+        const total = lineSubtotal * days;
+        subtotalPerDay += lineSubtotal;
+        totalCost += total;
+        totalItemQty += entry.qty;
         lines.push([
+            getItemNumber(entry.item),
             entry.item.name,
             String(entry.qty),
             unit.toFixed(2),
+            lineSubtotal.toFixed(2),
             String(days),
             total.toFixed(2),
         ]);
     });
+
+    lines.push([]);
+    lines.push(["Summary", "", "", "", "", "", ""]);
+    lines.push(["Distinct Items", String(selectedItems.size), "", "", "", "", ""]);
+    lines.push(["Subtotal Items (Qty)", String(totalItemQty), "", "", "", "", ""]);
+    lines.push(["Subtotal / Day", "", "", "", subtotalPerDay.toFixed(2), "", ""]);
+    lines.push(["Days", "", "", "", "", String(days), ""]);
+    lines.push(["Total Cost", "", "", "", "", "", totalCost.toFixed(2)]);
 
     const csv = lines
         .map(cols => cols.map(c => `"${String(c).replace(/"/g, "\"\"")}"`).join(","))
@@ -232,6 +258,46 @@ function exportCsv() {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
+}
+
+function openModal(item) {
+    modalName.textContent = item.name || "Item details";
+    if (item.thumb_file) {
+        modalImg.src = `/thumbnails/${item.thumb_file}`;
+        modalImg.alt = item.name || "Inventory item";
+        modalImg.style.display = "";
+    } else {
+        modalImg.style.display = "none";
+    }
+
+    modalExtra.innerHTML = "";
+    const detailRows = [];
+    detailRows.push(["Item Number", getItemNumber(item) || "-"]);
+    detailRows.push(["Price", money(getPrice(item)) + " / day"]);
+
+    if (item.extra && Object.keys(item.extra).length) {
+        Object.entries(item.extra).forEach(([key, val]) => {
+            if (key === "Product Id" || key === "Price") {
+                return;
+            }
+            detailRows.push([key, val]);
+        });
+    }
+
+    detailRows.forEach(([key, val]) => {
+        const row = document.createElement("div");
+        row.className = "extra-row";
+        row.innerHTML = `<span class="extra-label">${escHtml(key)}</span><span>${escHtml(String(val))}</span>`;
+        modalExtra.appendChild(row);
+    });
+
+    modal.style.display = "";
+    document.body.style.overflow = "hidden";
+}
+
+function closeModal() {
+    modal.style.display = "none";
+    document.body.style.overflow = "";
 }
 
 searchInput.addEventListener("input", () => {
@@ -264,6 +330,12 @@ selectedListEl.addEventListener("click", e => {
     removeItem(id);
 });
 
+selectedListEl.addEventListener("dblclick", e => {
+    const previewId = parseInt(e.target.dataset.previewId || "", 10);
+    if (!previewId || !selectedItems.has(previewId)) return;
+    openModal(selectedItems.get(previewId).item);
+});
+
 dropZoneEl.addEventListener("dragover", e => {
     e.preventDefault();
     dropZoneEl.classList.add("active");
@@ -280,6 +352,12 @@ dropZoneEl.addEventListener("drop", e => {
     if (!id) return;
     const item = searchResultsById.get(id);
     if (item) addItem(item);
+});
+
+modal.querySelector(".modal-backdrop").addEventListener("click", closeModal);
+modal.querySelector(".modal-close").addEventListener("click", closeModal);
+document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeModal();
 });
 
 doSearch();
